@@ -1,61 +1,65 @@
 using namespace std;
-// ½ÚµãÀà
+// é‚»æ¥è¡¨èŠ‚ç‚¹
+class Node;
+class DataNode;
+
+class NeiborNode
+{
+public:
+    int num;          // åºå·
+    int dis;          // ä¸å¯¹åº”èŠ‚ç‚¹çš„è·ç¦»
+    Node *ptr;        // æŒ‡å‘å¯¹åº”åºå·çš„èŠ‚ç‚¹
+    NeiborNode *next; // æŒ‡å‘ä¸‹ä¸€ä¸ªé‚»æ¥è¡¨èŠ‚ç‚¹
+    NeiborNode *pre;
+    NeiborNode(Node *ptr1, int num1, int dis1);
+};
+// èŠ‚ç‚¹ç±»
 class Node
 {
     int x;
     int y;
-    int num; // ĞòºÅ
-    // ÁÚ½Ó±í
+    int num; // åºå·
+    // é‚»æ¥è¡¨
 public:
-    // ³õÊ¼»¯½Úµã
-    NeiborNode *neibor_head; // ±íÍ·
+    // åˆå§‹åŒ–èŠ‚ç‚¹
+    NeiborNode *neibor_head; // è¡¨å¤´
     NeiborNode *neibor_tail;
     Node(int x1, int y1, int num1);
     void AddNeibor(Node *ptr, int num, int dis);
 };
-// ÁÚ½Ó±í½Úµã
-class NeiborNode
-{
-public:
-    int num;          // ĞòºÅ
-    int dis;          // Óë¶ÔÓ¦½ÚµãµÄ¾àÀë
-    Node *ptr;        // Ö¸Ïò¶ÔÓ¦ĞòºÅµÄ½Úµã
-    NeiborNode *next; // Ö¸ÏòÏÂÒ»¸öÁÚ½Ó±í½Úµã
-    NeiborNode *pre;
-    NeiborNode(Node *ptr1, int num1, int dis1);
-};
 
-// ·şÎñ¶Ë
+
+// æœåŠ¡ç«¯
 class Server : public Node
 {
 public:
-    int data_start; // ²úÉúµÄÊı¾İ¿â´ÓÄÄµ½ÄÄ
+    int data_start; // äº§ç”Ÿçš„æ•°æ®åº“ä»å“ªåˆ°å“ª
     int data_end;
     Server(int x1, int y1, int num1);
 };
 
-// ¿Í»§¶ËÀà
+// å®¢æˆ·ç«¯ç±»
 class Client : public Node
 {
 public:
-    //  ÓÃÁ´±íÊµÏÖ»º´æÊı¾İ¿é
+    //  ç”¨é“¾è¡¨å®ç°ç¼“å­˜æ•°æ®å—
     DataNode *cache_head;
-    DataNode *cache_comptr; // Ö¸Ïò×îºóÒ»¸öË³ĞòµÄ½Úµã
+    DataNode *cache_comptr; // æŒ‡å‘æœ€åä¸€ä¸ªé¡ºåºçš„èŠ‚ç‚¹
     DataNode *cache_tail;
-    int N; // »º´æ´óĞ¡
-    int M; // ²¥·ÅÌõ¼ş
-    // ÔÚ¿Í»§¶ËÉÏÎ¬»¤Ò»¸ö³¤¶ÈÎªNµÄ»º´æ¶ÓÁĞ,ĞÂµ½´ïµÄÊı¾İ·Ö¿é»á½«×îÀÏµÄÊı¾İ¿é½øĞĞ¸²¸Ç¡£¿´²»¶®£¬ÏñÕ»Ò»Ñù£¿
-    // ÉÏÃæµÄÄÚÈİ¾Í¿ÉÒÔÊµÏÖ Ö»ĞèÒª°Ñ¾ÉµÄ½Úµã´ÓÖĞÒÆ³ı²¢ÊÍ·Å¾ÍĞĞ
+    int N; // ç¼“å­˜å¤§å°
+    int M; // æ’­æ”¾æ¡ä»¶
+    // åœ¨å®¢æˆ·ç«¯ä¸Šç»´æŠ¤ä¸€ä¸ªé•¿åº¦ä¸ºNçš„ç¼“å­˜é˜Ÿåˆ—,æ–°åˆ°è¾¾çš„æ•°æ®åˆ†å—ä¼šå°†æœ€è€çš„æ•°æ®å—è¿›è¡Œè¦†ç›–ã€‚çœ‹ä¸æ‡‚ï¼Œåƒæ ˆä¸€æ ·ï¼Ÿ
+    // ä¸Šé¢çš„å†…å®¹å°±å¯ä»¥å®ç° åªéœ€è¦æŠŠæ—§çš„èŠ‚ç‚¹ä»ä¸­ç§»é™¤å¹¶é‡Šæ”¾å°±è¡Œ
     Client(int x1, int y1, int num1);
     void AddData(int data_num);
 };
-// data NÊı¾İ¿é
-// Êı¾İ½Úµã
-class DataNode // ²ÉÓÃÁ´±í´æ´¢Êı¾İ¿é
+// data Næ•°æ®å—
+// æ•°æ®èŠ‚ç‚¹
+class DataNode // é‡‡ç”¨é“¾è¡¨å­˜å‚¨æ•°æ®å—
 {
 public:
-    int data_num; // Êı¾İ¿éĞòºÅ
-    // Êı¾İ¿é·ÅÕâÀï£¿
+    int data_num; // æ•°æ®å—åºå·
+    // æ•°æ®å—æ”¾è¿™é‡Œï¼Ÿ
     struct DataNode *next;
     struct DataNode *pre;
     DataNode(int num);
