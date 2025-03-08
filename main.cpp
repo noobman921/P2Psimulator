@@ -8,11 +8,11 @@ using namespace std;
 int main()
 {
     long long time = 0;
-    while (1)
-    {
+    // while (1)
+    // {
         
-        perFrame(time);
+    //     perFrame(time);
 
-    }
+    // }
     return 0;
 }
