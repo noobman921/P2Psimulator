@@ -75,17 +75,48 @@ void Client::AddData(int data_num)
     if (cache_head == NULL)
     {
         cache_head = ptr;
+        cache_comptr = ptr;
+        cache_tail = ptr;
         return;
     }
-    // DataNode *temp_ptr = cache_comptr;//临时指针 用于遍历
-    // while(temp_ptr->next != NULL && temp_ptr->next->data_num <= ptr->data_num){
-    //     temp_ptr = temp_ptr->next;
-    // }
-    // if(temp_ptr == cache_comptr){
-    //     //在第一个
-    // }
-    // 没写完的东西 包括数据块全为顺序的情况 插入表尾还是不是顺序表
-    //            数据块有非顺序 如果插入cache_comptr后顺序表会不会扩大
+    DataNode *temp_ptr = cache_comptr;//临时指针 用于遍历
+    while(temp_ptr->next != NULL && temp_ptr->next->data_num <= ptr->data_num){
+        temp_ptr = temp_ptr->next;
+    }
+    if(temp_ptr->next == NULL){
+        
+        // 插入表尾
+        temp_ptr->next = ptr;
+        ptr->pre = temp_ptr;
+        //判断是否是顺序表
+        if(cache_comptr == cache_tail && ptr->data_num == cache_comptr->data_num + 1){
+            cache_comptr = ptr;
+        }
+        // 更新cache_tail
+        cache_tail = ptr;
+    }
+    else{
+        //插入中间
+        if(temp_ptr == cache_comptr){
+            //插入位置在cache_comptr后一位
+            ptr->next = temp_ptr->next;
+            ptr->pre = temp_ptr;
+            temp_ptr->next->pre = ptr;
+            temp_ptr->next = ptr;
+            //移动cache_comptr直至表尾或到最后一个顺序节点
+            while(cache_comptr->next != NULL &&  cache_comptr->next->data_num == cache_comptr->data_num + 1){
+                cache_comptr = cache_comptr->next;
+            }
+        }
+        else{
+            //插入位置在非顺序表中
+            ptr->next = temp_ptr->next;
+            ptr->pre = temp_ptr;
+            temp_ptr->next->pre = ptr;
+            temp_ptr->next = ptr;
+        }
+    }
+    
 }
 
 DataNode::DataNode(int num)
@@ -94,9 +125,11 @@ DataNode::DataNode(int num)
     next = NULL;
     pre = NULL;
 }
+
 void perFrame(long long time)
 {
     // 一秒视为一帧 在一帧内进行所有处理
+    
     // 处理完毕
     time++;
 }
