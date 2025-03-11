@@ -2,12 +2,14 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "C/C++: gcc.exe 生成活动文件",
-            "command": "D:\\MySoftware\\MSYS2\\ucrt64\\bin\\gcc.exe",
+            "label": "C/C++: g++.exe 生成活动文件",
+            "command": "D:\\MySoftware\\MSYS2\\ucrt64\\bin\\g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${file}",
+                "${fileDirname}\\main.cpp",
+                "${fileDirname}\\node.cpp",
+                "${fileDirname}\\simulator.cpp",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"
             ],

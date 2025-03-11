@@ -1,3 +1,6 @@
+#ifndef NODE_H
+#define NODE_H
+
 using namespace std;
 // 邻接表节点
 class Node;
@@ -66,3 +69,5 @@ public:
 };
 
 void perFrame(long long time);
+
+#endif
