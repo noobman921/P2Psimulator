@@ -1,40 +1,43 @@
 #include "simulator.h"
-
-
-//æ­¤å‡½æ•°ç”¨äºéšæœºç”Ÿæˆnä¸ªå®¢æˆ·ç«¯ 1ä¸ªæœåŠ¡ç«¯
-//nä¸ºåˆå§‹åŒ–çš„ä¸ªæ•°
+#include "node.h"
+// ´Ëº¯ÊıÓÃÓÚËæ»úÉú³Én¸ö¿Í»§¶Ë 1¸ö·şÎñ¶Ë
+// nÎª³õÊ¼»¯µÄ¸öÊı
 void Simulator_Data_Generate(int n)
 {
-    if(n < 1){
-        cout << "èŠ‚ç‚¹æ•°ç›®è¿‡å°‘" << endl;
+    if (n < 1)
+    {
+        cout << "½ÚµãÊıÄ¿¹ıÉÙ" << endl;
         return;
     }
-    
+
     ofstream file("data.txt");
     if (!file.is_open())
     {
-        cout << "æ–‡ä»¶æ‰“å¼€å¤±è´¥" << endl;
+        cout << "ÎÄ¼ş´ò¿ªÊ§°Ü" << endl;
         return;
     }
 
-    // ä½¿ç”¨éšæœºæ•°å¼•æ“å’Œåˆ†å¸ƒç”Ÿæˆéšæœºçš„ x å’Œ y åæ ‡
+    // Ê¹ÓÃËæ»úÊıÒıÇæºÍ·Ö²¼Éú³ÉËæ»úµÄ x ºÍ y ×ø±ê
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<> dis_x(0, MAX_X);
     uniform_int_distribution<> dis_y(0, MAX_Y);
 
-    // ç”Ÿæˆ 1 ä¸ªæœåŠ¡ç«¯ è§„å®šæœåŠ¡ç«¯çš„åºå·ä¸º0
+    // Éú³É 1 ¸ö·şÎñ¶Ë ¹æ¶¨·şÎñ¶ËµÄĞòºÅÎª0
     int server_x = dis_x(gen);
     int server_y = dis_y(gen);
-    file << "Server: " << 0 << server_x << " " << server_y << endl;
+    file << "Server " << 0 << ": " << server_x << " " << server_y << endl;
+    Node(0, server_x, server_y);
 
-    // ç”Ÿæˆ n ä¸ªå®¢æˆ·ç«¯
-    for (int i = 0; i < n; ++i)
+    // Éú³É n ¸ö¿Í»§¶Ë
+    for (int i = 1; i <= n; i++)
     {
         int client_x = dis_x(gen);
         int client_y = dis_y(gen);
         file << "Client " << i + 1 << ": " << client_x << " " << client_y << endl;
+        Node(i, client_x, client_y);
     }
-
+    // ÔÚÕâÀï°Ñ¿Í»§¶ËºÍ·şÎñ¶Ë×ö³É½Úµã£¿
     file.close();
+    return;
 }

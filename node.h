@@ -19,18 +19,18 @@ public:
 // 节点类
 class Node
 {
+public:
     int x;
     int y;
     int num; // 序号
     // 邻接表
-public:
+
     // 初始化节点
     NeiborNode *neibor_head; // 表头
     NeiborNode *neibor_tail;
-    Node(int x1, int y1, int num1);
+    Node(int num1,int x1, int y1 );
     void AddNeibor(Node *ptr, int num, int dis);
 };
-
 
 // 服务端
 class Server : public Node
@@ -69,5 +69,6 @@ public:
 };
 
 void perFrame(long long time);
+double distance(const Node &a, const Node &b);
 
 #endif

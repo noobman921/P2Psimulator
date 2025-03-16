@@ -5,13 +5,14 @@
 #include "node.h"
 using namespace std;
 // 节点类
-Node::Node(int x1, int y1, int num1)
+Node::Node(int num1,int x1, int y1 )
 {
     x = x1;
     y = y1;
     num = num1;
     neibor_head = NULL;
     neibor_tail = NULL;
+    
 }
 
 void Node::AddNeibor(Node *ptr, int num, int dis)
@@ -119,13 +120,16 @@ void Client::AddData(int data_num)
     
 }
 
-DataNode::DataNode(int num)
+DataNode::DataNode(int num)//数据节点
 {
     data_num = num;
     next = NULL;
     pre = NULL;
 }
 
+double distance(const Node& a, const Node& b) {
+    return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+}
 void perFrame(long long time)
 {
     // 一秒视为一帧 在一帧内进行所有处理

@@ -8,7 +8,7 @@
 
 #include "node.h"
 
-//å®šä¹‰ åæ ‡ç³»xyçš„èŒƒå›´
+//¶¨Òå ×ø±êÏµxyµÄ·¶Î§
 #define MAX_X 100000
 #define MAX_Y 100000
 
