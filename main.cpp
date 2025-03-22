@@ -1,20 +1,28 @@
+#include <iostream>
+#include <queue>
 #include "node.h"
 #include "simulator.h"
+
 // #include <stdio.h>
 // #include <time.h>
 // #include <unistd.h>
 using namespace std;
 
-constexpr int Node_Count = 100;//节点数量
+
 int main()
 {
-    Simulator_Data_Generate(Node_Count);
-    
+    //服务端+1
+    Simulator_Data_Generate(INIT_NODE + 1);
     Server server;
-    Client client[Node_Count];
-    CreateNodeFromFile(Node_Count, server, client);
+    Client client[INIT_NODE + INIT_EMPTY];
+    queue<int> free_node;//存放空闲位置
+    for (int i = INIT_NODE; i < INIT_NODE + INIT_EMPTY; i++)
+    {
+        free_node.push(i);
+    }
+    CreateNodeFromFile(INIT_NODE, server, client);
     //读文件创建节点
-    CreateNeibor(Node_Count);
+    CreateNeibor(INIT_NODE, NEIGHBOR_COUNT, server, client);
     //long long time = 0;
     // while (1)
     // {

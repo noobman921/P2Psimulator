@@ -4,9 +4,28 @@
 using namespace std;
 // 邻接表节点
 
-constexpr int Neibor_Count = 5;//邻居数量
 class Node;
 class DataNode;
+class NeiborNode;
+
+// 节点类
+class Node
+{
+public:
+    int id; // 序号
+    int x;  // 地理位置X
+    int y;  // 地理位置Y
+    int neibor_count;//当前邻居数量，最大为Neibor_Count
+    int min_dis; // 最小邻居距离
+    int max_dis; // 最大邻居距离
+    // 邻接表
+    // 初始化节点
+    NeiborNode *neibor_head; // 表头
+    NeiborNode *neibor_tail;
+    Node(int id1, int x1, int y1);
+    Node():id(0),x(0),y(0){};
+    void AddNeibor(Node *ptr, int id, int dis);
+};
 
 class NeiborNode
 {
@@ -19,25 +38,6 @@ public:
     NeiborNode *pre;
     NeiborNode(Node *ptr1, int id1, int dis1);
 };
-// 节点类
-class Node
-{
-public:
-    int id; // 序号
-    int x;  // 地理位置X
-    int y;  // 地理位置Y
-    int neibor_count;//当前邻居数量，最大为Neibor_Count
-    // 邻接表
-    vector<int> neibors; // 邻居节点列表
-    queue<int> buffer;     // 数据块缓存队列
-    // 初始化节点
-    NeiborNode *neibor_head; // 表头
-    NeiborNode *neibor_tail;
-    Node(int id1, int x1, int y1);
-    Node():id(0),x(0),y(0){};
-    void AddNeibor(Node *ptr, int id, int dis);
-};
-
 // 服务端
 class Server : public Node
 {

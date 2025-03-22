@@ -4,12 +4,15 @@
 // #include <unistd.h>
 #include "node.h"
 using namespace std;
-// 节点类
+// 节点构造函数
 Node::Node(int id1, int x1, int y1)
 {
     x = x1;
     y = y1;
     id = id1;
+    neibor_count = 0;
+    min_dis = 0;
+    max_dis = 0;
     neibor_head = NULL;
     neibor_tail = NULL;
 }
@@ -25,9 +28,9 @@ void Node::AddNeibor(Node *ptr, int id, int dis)
     }
     else
     {
-        // 排序是否在这里做好？
+        // 插入排序保持邻居链表有序
         NeiborNode *ptr = neibor_head;
-        // 找到第一个大于新邻居的节点 或 空节点
+        // 找到第一个比新邻居距离大的节点 或 末尾节点
         while (ptr->next != NULL && ptr->next->dis < new_neibor->dis)
         {
             ptr = ptr->next;
@@ -35,14 +38,14 @@ void Node::AddNeibor(Node *ptr, int id, int dis)
 
         if (ptr->next == NULL)
         {
-            // 空的 直接接到链表尾
+            // 插入到链表尾部
             neibor_tail->next = new_neibor;
             new_neibor->pre = neibor_tail;
             neibor_tail = new_neibor;
         }
         else
         {
-            // 非空 接到中间
+            // 插入到中间
             new_neibor->next = ptr->next;
             new_neibor->pre = ptr;
             ptr->next->pre = new_neibor;
@@ -71,8 +74,8 @@ Client::Client() : Node() {}
 
 void Client::AddData(int data_id)
 {
-    DataNode *ptr = new DataNode(data_id); // 指向新节点
-    // 一个数据块都无
+    DataNode *ptr = new DataNode(data_id); // 创建数据节点
+    // 如果缓存为空
     if (cache_head == NULL)
     {
         cache_head = ptr;
@@ -80,7 +83,7 @@ void Client::AddData(int data_id)
         cache_tail = ptr;
         return;
     }
-    DataNode *temp_ptr = cache_comptr; // 临时指针 用于遍历
+    DataNode *temp_ptr = cache_comptr; // 临时指针 从当前节点开始
     while (temp_ptr->next != NULL && temp_ptr->next->data_id <= ptr->data_id)
     {
         temp_ptr = temp_ptr->next;
@@ -88,10 +91,10 @@ void Client::AddData(int data_id)
     if (temp_ptr->next == NULL)
     {
 
-        // 插入表尾
+        // 插入到尾部
         temp_ptr->next = ptr;
         ptr->pre = temp_ptr;
-        // 判断是否是顺序表
+        // 更新cache_comptr为连续的最后一个节点
         if (cache_comptr == cache_tail && ptr->data_id == cache_comptr->data_id + 1)
         {
             cache_comptr = ptr;
@@ -101,15 +104,15 @@ void Client::AddData(int data_id)
     }
     else
     {
-        // 插入中间
+        // 插入到中间
         if (temp_ptr == cache_comptr)
         {
-            // 插入位置在cache_comptr后一位
+            // 插入位置紧挨cache_comptr
             ptr->next = temp_ptr->next;
             ptr->pre = temp_ptr;
             temp_ptr->next->pre = ptr;
             temp_ptr->next = ptr;
-            // 移动cache_comptr直至表尾或到最后一个顺序节点
+            // 更新cache_comptr直到连续的最后一个节点
             while (cache_comptr->next != NULL && cache_comptr->next->data_id == cache_comptr->data_id + 1)
             {
                 cache_comptr = cache_comptr->next;
@@ -117,7 +120,7 @@ void Client::AddData(int data_id)
         }
         else
         {
-            // 插入位置在非顺序表中
+            // 插入位置保持顺序
             ptr->next = temp_ptr->next;
             ptr->pre = temp_ptr;
             temp_ptr->next->pre = ptr;
@@ -126,7 +129,7 @@ void Client::AddData(int data_id)
     }
 }
 
-DataNode::DataNode(int id) // 数据节点
+DataNode::DataNode(int id) // 数据节点构造函数
 {
     data_id = id;
     next = NULL;
@@ -139,8 +142,8 @@ double distance(const Node &a, const Node &b)
 }
 void perFrame(long long time)
 {
-    // 一秒视为一帧 在一帧内进行所有处理
+    // 一次调用为一帧 每帧增加时间
 
-    // 处理完毕
+    // 时间增加
     time++;
 }

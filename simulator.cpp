@@ -42,6 +42,10 @@ void Simulator_Data_Generate(int n)
     return;
 }
 
+// 从文件中读取节点信息
+// n 为节点个数
+// server 为服务端
+// client 为客户端数组
 void CreateNodeFromFile(int n, Server& server, Client client[])
 {
     std::ifstream file("data.txt");
@@ -89,17 +93,58 @@ void CreateNodeFromFile(int n, Server& server, Client client[])
     file.close();
 }
 
-void CreateNeibor(int n)
+// 生成邻居
+// n 为节点个数
+// neighbor_count 为邻居个数
+// server 为服务端
+// client 为客户端数组
+void CreateNeibor(int n, int neighbor_count, Server& server, Client client[])
 {
+    int id = 0;
+    random_device rd; // 真随机数生成器
+    mt19937 gen(rd()); // 使用 Mersenne Twister 算法
+    uniform_int_distribution<> dis(1, n); // 定义范围 [1, n]
+    //生成服务端的邻居
+    for (int i = 1; i <= neighbor_count; i++)
+    {
+        //选取随机一个id
+        id = dis(gen);
+        //判断此节点是否已为邻居
+        NeiborNode *temp = server.neibor_head; 
+        while (temp != NULL && temp->id != id)
+        {
+            temp = temp->next;
+        }
+        if (temp->id == id)
+        {
+            //已为邻居 此次作废
+            i--;
+            continue;
+        }
+        server.neibor_count++;
+        server.AddNeibor(&client[id], id, distance(server, client[id]));
+    }
+    //生成客户端的邻居
     for (int i = 0; i < n; i++)
     {
-        for (int j = 0; j < n; j++)
+        for (int j = 1; j <= neighbor_count; j++)
         {
-            if (i == j)
+            //选取随机一个id
+            id = dis(gen);
+            //判断此节点是否已为邻居
+            NeiborNode *temp = client[i].neibor_head;
+            while (temp != NULL && temp->id != id)
             {
+                temp = temp->next;
+            }
+            if (temp->id == id)
+            {
+                //已为邻居 此次作废
+                j--;
                 continue;
             }
-            // 计算距离
+            client[i].neibor_count++;
+            client[i].AddNeibor(&client[id], id, distance(client[i], client[id]));
         }
     }
 }
