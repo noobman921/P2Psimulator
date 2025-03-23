@@ -14,11 +14,13 @@
 #define MAX_Y 100000
 #define INIT_NODE 100
 #define INIT_EMPTY 10
-//定义邻居数量
+// 定义邻居数量
 #define NEIGHBOR_COUNT 5
 
 void Simulator_Data_Generate(int n);
-void CreateNodeFromFile(int n,Server& server, Client client[]);
-void CreateNeibor(int n, int neighbor_count, Server& server, Client client[]);
+void CreateNodeFromFile(int n, Server &server, Client client[]);
+void CreateNeibor(int n, int neighbor_count, Server &server, Client client[]);
+void AddNodeToQueue(queue<int> &node_list, Node &node, bool *awakenedNodes);
+void DataRequest(Server &server, Client client[]);
 
 #endif
