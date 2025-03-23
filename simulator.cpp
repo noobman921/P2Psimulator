@@ -128,6 +128,8 @@ void CreateNeibor(int n, int neighbor_count, Server &server, Client client[])
     // 生成服务端的邻居
     for (int i = 1; i <= neighbor_count; i++)
     {
+        if (server.neibor_count == NEIGHBOR_COUNT)
+            break; // 服务端邻居数量已满 弹出循环
         // 选取随机一个id
         id = dis(gen);
         // 判断此节点是否已为邻居
@@ -146,18 +148,32 @@ void CreateNeibor(int n, int neighbor_count, Server &server, Client client[])
             i--;
             continue;
         }
-        server.neibor_count++;
-        // 将该客户端节点添加为服务端的邻居，并计算它们之间的距离
-        server.AddNeibor(&client[id], id, distance(server, client[id]));
-        // 更新服务端邻居的最小距离和最大距离
-        server.min_dis = server.neibor_head->dis;
-        server.max_dis = server.neibor_tail->dis;
+        if (client[id].neibor_count != NEIGHBOR_COUNT)
+        {
+            server.neibor_count++;
+            client[id].neibor_count++;
+            // 将该客户端节点添加为服务端的邻居，并计算它们之间的距离
+            server.AddNeibor(&client[id], id, distance(server, client[id]));
+            client[id].AddNeibor(&server, -1, distance(server, client[id]));
+            // 更新服务端邻居的最小距离和最大距离
+            server.min_dis = server.neibor_head->dis;
+            server.max_dis = server.neibor_tail->dis;
+            // 更新客户端邻居的最小距离和最大距离
+            client[id].min_dis = client[id].neibor_head->dis;
+            client[id].max_dis = client[id].neibor_tail->dis;
+        }
+        else
+        {
+            i--; // 邻居数量已满 此次作废
+        }
     }
     // 生成客户端的邻居
     for (int i = 0; i < n; i++)
     {
         for (int j = 1; j <= neighbor_count; j++)
         {
+            if (client[i].neibor_count == NEIGHBOR_COUNT)
+                break; // 客户端邻居数量已满 弹出循环
             // 选取随机一个id
             id = dis(gen);
             // 判断此节点是否已为邻居
@@ -176,21 +192,33 @@ void CreateNeibor(int n, int neighbor_count, Server &server, Client client[])
                 j--;
                 continue;
             }
-            client[i].neibor_count++;
-            // 将该客户端节点添加为当前客户端节点的邻居，并计算它们之间的距离
-            client[i].AddNeibor(&client[id], id, distance(client[i], client[id]));
+            if (client[id].neibor_count != NEIGHBOR_COUNT)
+            {
+                client[i].neibor_count++;
+                client[id].neibor_count++;
+                // 将该客户端节点添加为当前客户端节点的邻居，并计算它们之间的距离
+                client[i].AddNeibor(&client[id], id, distance(client[i], client[id]));
+                client[id].AddNeibor(&client[i], i, distance(client[i], client[id]));
+                // 更新当前客户端节点邻居的最小距离和最大距离
+                client[i].min_dis = client[i].neibor_head->dis;
+                client[i].max_dis = client[i].neibor_tail->dis;
+                // 更新被添加的客户端节点邻居的最小距离和最大距离
+                client[id].min_dis = client[id].neibor_head->dis;
+                client[id].max_dis = client[id].neibor_tail->dis;
+            }
+            else
+            {
+                j--; // 邻居数量已满 此次作废
+            }
         }
-        // 更新当前客户端节点邻居的最小距离和最大距离
-        client[i].min_dis = client[i].neibor_head->dis;
-        client[i].max_dis = client[i].neibor_tail->dis;
     }
 }
 /**
  * @brief 将指定节点的所有未被唤醒的邻居节点的 ID 添加到队列中
- * 
+ *
  * 该函数会遍历指定节点的邻居节点链表，把其中尚未被唤醒的邻居节点的 ID 依次添加到给定的队列里，
  * 并将这些节点标记为已唤醒。
- * 
+ *
  * @param node_list 引用类型，用于存储邻居节点 ID 的队列
  * @param node 引用类型，需要遍历其邻居节点的节点
  * @param awakenedNodes 布尔数组，用于记录节点是否已经被唤醒，数组下标对应节点 ID
@@ -200,8 +228,9 @@ void AddNodeToQueue(queue<int> &node_list, Node &node, bool *awakenedNodes)
     NeiborNode *temp = node.neibor_head;
     while (temp->next != NULL)
     {
-        //没唤醒就唤醒
-        if (!awakenedNodes[temp->id]) {
+        // 没唤醒就唤醒
+        if (!awakenedNodes[temp->id])
+        {
             node_list.push(temp->id);
             awakenedNodes[temp->id] = 1;
         }
@@ -224,12 +253,12 @@ void DataRequest(Server &server, Client client[])
     // 每个节点产生或得到数据块时 唤醒其邻居节点
     queue<int> node_call_list;
     // 重复访问？ 怎么解决?//用一个bool数组来判断是否唤醒过
-    bool *awakenedNodes = new bool[INIT_EMPTY+INIT_NODE + 1]();//这里要改
+    bool *awakenedNodes = new bool[INIT_EMPTY + INIT_NODE + 1](); // 这里要改
     // 唤醒服务端的邻居节点
     AddNodeToQueue(node_call_list, server, awakenedNodes);
 
     // 唤醒客户端的邻居节点
-    
+
     // 释放内存
     delete[] awakenedNodes;
 }
