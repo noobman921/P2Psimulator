@@ -5,19 +5,19 @@
 #include "node.h"
 using namespace std;
 // 节点构造函数
-Node::Node(int id1, int x1, int y1)
+Node::Node(int id1, ll x1, ll y1)
 {
     x = x1;
     y = y1;
     id = id1;
     neibor_count = 0;
     min_dis = 0;
-    max_dis = 0;
+    max_dis = 1e10;//99999^2?
     neibor_head = NULL;
     neibor_tail = NULL;
 }
 
-void Node::AddNeibor(Node *ptr, int id, int dis)
+void Node::AddNeibor(Node *ptr, int id, double dis)
 {
     NeiborNode *new_neibor = new NeiborNode(ptr, id, dis);
 
@@ -54,7 +54,7 @@ void Node::AddNeibor(Node *ptr, int id, int dis)
     }
 }
 
-NeiborNode::NeiborNode(Node *ptr1, int id1, int dis1)
+NeiborNode::NeiborNode(Node *ptr1, int id1, double dis1)
 {
     ptr = ptr1;
     id = id1;
@@ -63,13 +63,13 @@ NeiborNode::NeiborNode(Node *ptr1, int id1, int dis1)
     pre = NULL;
 }
 
-Server::Server(int x1, int y1, int id1) : Node(x1, y1, id1)
+Server::Server(int id1, ll x1, ll y1) : Node(id1, x1, y1)
 {
     data_start = 1;
     data_end = 0;
 }
 Server::Server() : Node() {}
-Client::Client(int x1, int y1, int id1) : Node(x1, y1, id1) {}
+Client::Client(int id1, ll x1, ll y1) : Node(id1, x1, y1) {}
 Client::Client() : Node() {}
 
 void Client::AddData(int data_id)
@@ -140,7 +140,7 @@ double distance(const Node &a, const Node &b)
 {
     return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
 }
-void perFrame(long long time)
+void perFrame(ll time)
 {
     // 一次调用为一帧 每帧增加时间
 

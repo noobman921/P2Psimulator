@@ -14,7 +14,7 @@
 #define MAX_Y 100000
 #define INIT_NODE 100
 #define INIT_EMPTY 10
-
+//定义邻居数量
 #define NEIGHBOR_COUNT 5
 
 void Simulator_Data_Generate(int n);
