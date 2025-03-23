@@ -78,9 +78,9 @@ void CreateNodeFromFile(int n, Server& server, Client client[])
         if (iss >> num1 >> num2)
         {
             if(lineCount==-1)
-            server=Server(lineCount, num1, num2);
+            server = Server(lineCount, num1, num2);
             else
-            client[lineCount - 1] = Client(lineCount, num1, num2);
+            client[lineCount] = Client(lineCount, num1, num2);
         }
         else
         {
@@ -115,7 +115,11 @@ void CreateNeibor(int n, int neighbor_count, Server& server, Client client[])
         {
             temp = temp->next;
         }
-        if (temp->id == id)
+        if(temp == NULL)
+        {
+            //为空
+        }
+        else if (temp->id == id)
         {
             //已为邻居 此次作废
             i--;
@@ -137,7 +141,11 @@ void CreateNeibor(int n, int neighbor_count, Server& server, Client client[])
             {
                 temp = temp->next;
             }
-            if (temp->id == id)
+            if(temp == NULL)
+            {
+                //为空
+            }
+            else if (temp->id == id)
             {
                 //已为邻居 此次作废
                 j--;

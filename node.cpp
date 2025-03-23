@@ -56,9 +56,9 @@ void Node::AddNeibor(Node *ptr, int id, int dis)
 
 NeiborNode::NeiborNode(Node *ptr1, int id1, int dis1)
 {
-    ptr = ptr;
-    id = id;
-    dis = dis;
+    ptr = ptr1;
+    id = id1;
+    dis = dis1;
     next = NULL;
     pre = NULL;
 }

@@ -32,7 +32,7 @@ class NeiborNode
 public:
     int id;    // 序号
     int dis;   // 与对应节点的距离
-    Node *ptr; // 指向对应序号的节点
+    Node* ptr; // 指向对应序号的节点
 
     NeiborNode *next; // 指向下一个邻接表节点
     NeiborNode *pre;
@@ -45,8 +45,8 @@ public:
     int data_start; // 产生的数据库从哪到哪
     int data_end;
     //Server(int x1, int y1, int id1);
-    Server(); 
-    Server(int id,int x,int y):Node(id,x,y){};
+    Server();
+    Server(int id,int x,int y);
 };
 
 // 客户端类
@@ -63,7 +63,7 @@ public:
     // 上面的内容就可以实现 只需要把旧的节点从中移除并释放就行
     //Client(int x1, int y1, int id1);
     Client();
-    Client(int id,int x,int y):Node(id,x,y){};
+    Client(int id,int x,int y);
     void AddData(int data_id);
 };
 // data N数据块
