@@ -65,7 +65,7 @@ NeiborNode::NeiborNode(Node *ptr1, int id1, int dis1)
 
 Server::Server(int x1, int y1, int id1) : Node(x1, y1, id1)
 {
-    data_start = 0;
+    data_start = 1;
     data_end = 0;
 }
 Server::Server() : Node() {}

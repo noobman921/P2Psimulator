@@ -127,6 +127,8 @@ void CreateNeibor(int n, int neighbor_count, Server& server, Client client[])
         }
         server.neibor_count++;
         server.AddNeibor(&client[id], id, distance(server, client[id]));
+        server.min_dis = server.neibor_head->dis;
+        server.max_dis = server.neibor_tail->dis;
     }
     //生成客户端的邻居
     for (int i = 0; i < n; i++)
@@ -154,5 +156,27 @@ void CreateNeibor(int n, int neighbor_count, Server& server, Client client[])
             client[i].neibor_count++;
             client[i].AddNeibor(&client[id], id, distance(client[i], client[id]));
         }
+        client[i].min_dis = client[i].neibor_head->dis;
+        client[i].max_dis = client[i].neibor_tail->dis;
     }
+}
+
+void AddNodeToQueue(queue<int> &node_list, Node &node)
+{
+    NeiborNode* temp = node.neibor_head;
+    while(temp->next != NULL)
+    {
+        node_list.push(temp->id);
+        temp = temp->next;
+    }
+}
+
+void DataRequest(Server& server, Client client[])
+{
+    // 服务端产生数据块 每帧30K
+    server.data_end += 30;
+    //每个节点产生或得到数据块时 唤醒其邻居节点 
+    queue<int> node_call_list;
+    //重复访问？ 怎么解决?
+
 }
