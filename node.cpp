@@ -103,8 +103,16 @@ Server::Server(int id1, ll x1, ll y1) : Node(id1, x1, y1)
 {
     data_start = 1;
     data_end = 0;
+    next_data_start = 1;
+    next_data_end = 0;
 }
 Server::Server() : Node() {}
+
+void Server::ServerDataUpdate()
+{
+    data_start = next_data_start;
+    data_end = next_data_end;
+}
 /**
  * @brief Client 类的带参数构造函数，用于初始化客户端节点对象
  *
@@ -117,6 +125,24 @@ Server::Server() : Node() {}
  */
 Client::Client(int id1, ll x1, ll y1) : Node(id1, x1, y1) {}
 Client::Client() : Node() {}
+
+/**
+ * @brief 更新数据块
+ */
+void Client::ClientDataUpdate()
+{
+    //处理旧的链表
+    DataNode* temp = cache_head;
+    while(temp!=NULL)
+    {
+        temp = temp->next;
+        delete cache_head;
+        cache_head = temp;
+    }
+    cache_head = next_cache_head;
+    cache_comptr = next_cache_comptr;
+    cache_tail = next_cache_tail;
+}
 /**
  * @brief 向客户端的缓存中添加数据节点
  *
@@ -130,14 +156,14 @@ void Client::AddData(int data_id)
 {
     DataNode *ptr = new DataNode(data_id); // 创建数据节点
     // 如果缓存为空
-    if (cache_head == NULL)
+    if (next_cache_head == NULL)
     {
-        cache_head = ptr;
-        cache_comptr = ptr;
-        cache_tail = ptr;
+        next_cache_head = ptr;
+        next_cache_comptr = ptr;
+        next_cache_tail = ptr;
         return;
     }
-    DataNode *temp_ptr = cache_comptr; // 临时指针 从当前节点开始
+    DataNode *temp_ptr = next_cache_comptr; // 临时指针 从当前节点开始
     while (temp_ptr->next != NULL && temp_ptr->next->data_id <= ptr->data_id)
     {
         temp_ptr = temp_ptr->next;
@@ -148,28 +174,28 @@ void Client::AddData(int data_id)
         // 插入到尾部
         temp_ptr->next = ptr;
         ptr->pre = temp_ptr;
-        // 更新cache_comptr为连续的最后一个节点
-        if (cache_comptr == cache_tail && ptr->data_id == cache_comptr->data_id + 1)
+        // 更新next_cache_comptr为连续的最后一个节点
+        if (next_cache_comptr == next_cache_tail && ptr->data_id == next_cache_comptr->data_id + 1)
         {
-            cache_comptr = ptr;
+            next_cache_comptr = ptr;
         }
-        // 更新cache_tail
-        cache_tail = ptr;
+        // 更新next_cache_tail
+        next_cache_tail = ptr;
     }
     else
     {
         // 插入到中间
-        if (temp_ptr == cache_comptr)
+        if (temp_ptr == next_cache_comptr)
         {
-            // 插入位置紧挨cache_comptr
+            // 插入位置紧挨next_cache_comptr
             ptr->next = temp_ptr->next;
             ptr->pre = temp_ptr;
             temp_ptr->next->pre = ptr;
             temp_ptr->next = ptr;
-            // 更新cache_comptr直到连续的最后一个节点
-            while (cache_comptr->next != NULL && cache_comptr->next->data_id == cache_comptr->data_id + 1)
+            // 更新next_cache_comptr直到连续的最后一个节点
+            while (next_cache_comptr->next != NULL && next_cache_comptr->next->data_id == next_cache_comptr->data_id + 1)
             {
-                cache_comptr = cache_comptr->next;
+                next_cache_comptr = next_cache_comptr->next;
             }
         }
         else

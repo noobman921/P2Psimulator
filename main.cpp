@@ -12,7 +12,7 @@ using namespace std;
 int main()
 {
     //服务端+1
-    Simulator_Data_Generate(INIT_NODE + 1);
+    SimulatorDataGenerate(INIT_NODE + 1);
     Server server;
     Client client[INIT_NODE + INIT_EMPTY];
     queue<int> free_node;//存放空闲位置

@@ -46,8 +46,11 @@ class Server : public Node
 public:
     int data_start; // 产生的数据库从哪到哪
     int data_end;
+    int next_data_start;
+    int next_data_end;
     Server();
     Server(int id,ll x,ll y);
+    void ServerDataUpdate();
 };
 
 // 客户端类
@@ -55,15 +58,19 @@ class Client : public Node
 {
 public:
     //  用链表实现缓存数据块
-    DataNode *cache_head;
-    DataNode *cache_comptr; // 指向最后一个顺序的节点
-    DataNode *cache_tail;
+    DataNode* cache_head;
+    DataNode* cache_comptr; // 指向最后一个顺序的节点
+    DataNode* cache_tail;
+    DataNode* next_cache_head;
+    DataNode* next_cache_comptr; // 指向最后一个顺序的节点
+    DataNode* next_cache_tail;
     int N; // 缓存大小
     int M; // 播放条件
     // 在客户端上维护一个长度为N的缓存队列,新到达的数据分块会将最老的数据块进行覆盖。看不懂，像栈一样？
     // 上面的内容就可以实现 只需要把旧的节点从中移除并释放就行
     Client();
     Client(int id,ll x,ll y);
+    void ClientDataUpdate();
     void AddData(int data_id);
 };
 // data N数据块

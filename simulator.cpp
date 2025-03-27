@@ -8,7 +8,7 @@
  *
  * @param n 要生成的客户端节点的数量
  */
-void Simulator_Data_Generate(int n)
+void SimulatorDataGenerate(int n)
 {
     if (n < 1)
     {
@@ -253,12 +253,109 @@ void DataRequest(Server &server, Client client[])
     // 每个节点产生或得到数据块时 唤醒其邻居节点
     queue<int> node_call_list;
     // 重复访问？ 怎么解决?//用一个bool数组来判断是否唤醒过
-    bool *awakenedNodes = new bool[INIT_EMPTY + INIT_NODE + 1](); // 这里要改
+    bool *awakenedNodes = new bool[INIT_EMPTY + INIT_NODE]();
     // 唤醒服务端的邻居节点
     AddNodeToQueue(node_call_list, server, awakenedNodes);
-
+    int temp;
     // 唤醒客户端的邻居节点
-
+    while(!node_call_list.empty())
+    {
+        //逐节点处理
+        temp = node_call_list.front();
+        //temp为当前节点的id
+        node_call_list.pop();
+        //访问temp邻居并请求数据
+        NeiborNode* ptr = client[temp].neibor_head;
+        //ptr指向邻居节点
+        for(int i = 0; i < NEIGHBOR_COUNT; i++)
+        {
+            //邻居为Server
+            int speed = SpeedGet(ptr->id, temp, server, client);
+            if(ptr->id == -1)
+            {
+                if(client[temp].cache_comptr->data_id < server.data_start)
+                {
+                    //有新数据 请求上限为速度
+                    for(int i = 0; i < speed; i++)
+                    {
+                        //寻找可请求数据块
+                        while(client[temp].cache_comptr != client[temp].cache_tail && client[temp].cache_comptr->data_id + 1 == client[temp].cache_comptr->next->data_id)
+                        {
+                            client[temp].cache_comptr = client[temp].cache_comptr->next;
+                        }
+                        if(client[temp].cache_comptr->data_id + 1 <= server.data_end)
+                        {
+                            //请求数据块
+                            client[temp].AddData(client[temp].cache_comptr->data_id + 1);
+                        }
+                        else
+                        {
+                            //没有数据块可请求
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //邻居为client
+                DataNode* ptr_receiver = client[temp].cache_comptr;
+                DataNode* ptr_sender = client[ptr->id].cache_head;
+                int i = 0;
+                while(i < speed)
+                {
+                    while(ptr_sender != NULL && ptr_receiver->data_id >= ptr_sender->data_id)
+                    {
+                        //搜索可申请的数据块
+                        //找到第一个大于comptr的id
+                        ptr_sender = ptr_sender->next;
+                    }
+                    //无可申请数据块
+                    if(ptr_sender == NULL)break;
+                    //判断receiver是否已拥有此数据块 即找到一个数据块大于等于sender的数据块
+                    DataNode* checkptr = ptr_receiver->next;
+                    while(checkptr->data_id < ptr_sender->data_id)
+                    {
+                        //receiver所有数据块均小于sender 直接添加sender
+                        if(checkptr == client[temp].cache_tail)break;
+                        checkptr = checkptr->next;
+                    }
+                    //找到大于等于sender的数据块
+                    if(checkptr->data_id == ptr_sender->data_id)
+                    {
+                        //已拥有该数据块
+                        continue;
+                        //下一次循环
+                    }
+                    //找到大于sender的数据块 或 receiver所有数据块均小于sender
+                    client[temp].AddData(ptr_sender->data_id);
+                    i++;
+                }
+            }
+        }
+        AddNodeToQueue(node_call_list, client[temp], awakenedNodes);
+    }
+    
     // 释放内存
     delete[] awakenedNodes;
+}
+
+/**
+ * @brief 获得传输速度
+ * @param id1 发送数据的节点id
+ * @param id2 接收数据的节点id
+ * @param server 服务端节点的引用
+ * @param client 客户端节点数组
+ */
+int SpeedGet(int id1, int id2, Server &server, Client Client[])
+{
+    if(id1 == -1)
+    {
+        return 100 - (int)((distance(server, Client[id2])-server.neibor_head->dis)/(server.neibor_tail->dis - server.neibor_head->dis)*80);
+    }
+    else
+    {
+        return 100 - (int)((distance(Client[id1], Client[id2])-Client[id1].neibor_head->dis)/(Client[id1].neibor_tail->dis - Client[id1].neibor_head->dis)*80);
+    }
+    return 0;
 }
