@@ -123,7 +123,16 @@ void Server::ServerDataUpdate()
  * @param x1 客户端节点的 x 坐标，使用 `ll` 类型
  * @param y1 客户端节点的 y 坐标
  */
-Client::Client(int id1, ll x1, ll y1) : Node(id1, x1, y1) {}
+Client::Client(int id1, ll x1, ll y1) : Node(id1, x1, y1) 
+{
+    data_count = 0;
+    cache_head = NULL;
+    cache_comptr = NULL;
+    cache_tail = NULL;
+    next_cache_head = NULL;
+    next_cache_comptr = NULL;
+    next_cache_tail = NULL;
+}
 Client::Client() : Node() {}
 
 /**
@@ -154,6 +163,7 @@ void Client::ClientDataUpdate()
  */
 void Client::AddData(int data_id)
 {
+    data_count++;
     DataNode *ptr = new DataNode(data_id); // 创建数据节点
     // 如果缓存为空
     if (next_cache_head == NULL)
@@ -206,6 +216,26 @@ void Client::AddData(int data_id)
             temp_ptr->next->pre = ptr;
             temp_ptr->next = ptr;
         }
+
+        //在这里进行播放判断?
+        //用哈希表维护节点
+        while(data_count > DATA_LIMIT)
+        {
+            //数据块溢出
+            data_count--;
+            DataNode* temp = next_cache_head;
+            if(next_cache_comptr == next_cache_head)
+            {
+                //如果第一个数据块就不连续 则移动comptr
+                next_cache_comptr = next_cache_comptr->next;
+                while(next_cache_comptr->data_id + 1 == next_cache_comptr->next->data_id)
+                {
+                    next_cache_comptr = next_cache_comptr->next;
+                }
+            }
+            next_cache_head = next_cache_head->next;
+            delete temp;
+        }
     }
 }
 /**
@@ -223,6 +253,12 @@ DataNode::DataNode(int id) // 数据节点构造函数
     next = NULL;
     pre = NULL;
 }
+
+void StreamData()
+{
+
+}
+
 /**
  * @brief 计算两个节点之间的欧几里得距离
  * 

@@ -133,6 +133,11 @@ void CreateNeibor(int n, int neighbor_count, Server &server, Client client[])
         // 选取随机一个id
         id = dis(gen);
         // 判断此节点是否已为邻居
+        if(client[id].neibor_count == NEIGHBOR_COUNT || id == -1)
+        {
+                i--;
+                continue; // 对方邻居数量已满 或 选取自身 本次作废
+        }
         NeiborNode *temp = server.neibor_head;
         while (temp != NULL && temp->id != id)
         {
@@ -172,10 +177,16 @@ void CreateNeibor(int n, int neighbor_count, Server &server, Client client[])
     {
         for (int j = 1; j <= neighbor_count; j++)
         {
+            cout << client[i].neibor_count << endl;
             if (client[i].neibor_count == NEIGHBOR_COUNT)
                 break; // 客户端邻居数量已满 弹出循环
             // 选取随机一个id
             id = dis(gen);
+            if(client[id].neibor_count == NEIGHBOR_COUNT || id == i)
+            {
+                j--;
+                continue; // 对方邻居数量已满 或 选取自身 本次作废
+            }
             // 判断此节点是否已为邻居
             NeiborNode *temp = client[i].neibor_head;
             while (temp != NULL && temp->id != id)
@@ -226,10 +237,14 @@ void CreateNeibor(int n, int neighbor_count, Server &server, Client client[])
 void AddNodeToQueue(queue<int> &node_list, Node &node, bool *awakenedNodes)
 {
     NeiborNode *temp = node.neibor_head;
-    while (temp->next != NULL)
+    while (temp!= NULL)
     {
         // 没唤醒就唤醒
-        if (!awakenedNodes[temp->id])
+        if(temp->id == -1)
+        {
+            //邻居为服务器 空过
+        }
+        else if (!awakenedNodes[temp->id])
         {
             node_list.push(temp->id);
             awakenedNodes[temp->id] = 1;
@@ -273,20 +288,26 @@ void DataRequest(Server &server, Client client[])
             int speed = SpeedGet(ptr->id, temp, server, client);
             if(ptr->id == -1)
             {
-                if(client[temp].cache_comptr->data_id < server.data_start)
+                if(client[temp].cache_head == NULL || client[temp].cache_comptr->data_id < server.data_end)
                 {
                     //有新数据 请求上限为速度
                     for(int i = 0; i < speed; i++)
-                    {
+                    {   
+                        //无数据 添加一号数据块
+                        if(client[temp].next_cache_head == NULL)
+                        {
+                            client[temp].AddData(1);
+                            continue;
+                        }
                         //寻找可请求数据块
-                        while(client[temp].cache_comptr != client[temp].cache_tail && client[temp].cache_comptr->data_id + 1 == client[temp].cache_comptr->next->data_id)
+                        while(client[temp].next_cache_comptr != client[temp].next_cache_tail && client[temp].next_cache_comptr->data_id + 1 == client[temp].next_cache_comptr->next->data_id)
                         {
                             client[temp].cache_comptr = client[temp].cache_comptr->next;
                         }
-                        if(client[temp].cache_comptr->data_id + 1 <= server.data_end)
+                        if(client[temp].next_cache_comptr->data_id + 1 <= server.data_end)
                         {
                             //请求数据块
-                            client[temp].AddData(client[temp].cache_comptr->data_id + 1);
+                            client[temp].AddData(client[temp].next_cache_comptr->data_id + 1);
                         }
                         else
                         {
@@ -299,11 +320,21 @@ void DataRequest(Server &server, Client client[])
             else
             {
                 //邻居为client
-                DataNode* ptr_receiver = client[temp].cache_comptr;
+                DataNode* ptr_receiver = client[temp].next_cache_comptr;
                 DataNode* ptr_sender = client[ptr->id].cache_head;
                 int i = 0;
                 while(i < speed)
                 {
+                    //邻居数据块为空 申请失败 退出
+                    if(ptr_sender == NULL)
+                    {
+                        break;
+                    }
+                    else if(ptr_receiver == NULL)
+                    {
+                        //自身数据块为空
+                        client[temp].AddData(ptr_sender->data_id);
+                    }
                     while(ptr_sender != NULL && ptr_receiver->data_id >= ptr_sender->data_id)
                     {
                         //搜索可申请的数据块
@@ -332,6 +363,8 @@ void DataRequest(Server &server, Client client[])
                     i++;
                 }
             }
+            //下一个邻居
+            ptr = ptr->next;
         }
         AddNodeToQueue(node_call_list, client[temp], awakenedNodes);
     }
@@ -358,4 +391,45 @@ int SpeedGet(int id1, int id2, Server &server, Client Client[])
         return 100 - (int)((distance(Client[id1], Client[id2])-Client[id1].neibor_head->dis)/(Client[id1].neibor_tail->dis - Client[id1].neibor_head->dis)*80);
     }
     return 0;
+}
+
+//播放流畅度定义为 一次循环处理20次播放请求 计算能否正常播放
+/**
+ * @brief 计算播放流畅度和播放延迟
+ * @param id 客户端编号
+ * @param time 全局时间
+ */
+int StreamCalculate(int id, int time, Client client[])
+{
+
+    DataNode* temp = client[id].cache_head;
+    if(temp == NULL)
+    {
+        //缓存为空
+        return -1;
+    }
+    while(temp->data_id <= client[id].stream_pos)
+    {
+        //寻找可播放数据块
+        if(temp == client[id].cache_tail)
+        {
+            //未找到可播放数据块
+            return -1;
+        }
+        temp = temp->next;
+    }
+    int count = 0;
+    for(int i = 0; i < 20; i++)
+    {
+        //检查是否可播放
+        if(client[id].cache_comptr->data_id - temp->data_id >= DATA_STREAM)
+        {
+            temp = temp->next;
+            temp->stream_delay = time - (temp->data_id / 30);
+            count++;
+        }
+    }
+    client[id].stream_speed = count;
+    //计算延迟
+    return 1;
 }

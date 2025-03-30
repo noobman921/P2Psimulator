@@ -23,6 +23,11 @@ int main()
     CreateNodeFromFile(INIT_NODE, server, client);
     //读文件创建节点
     CreateNeibor(INIT_NODE, NEIGHBOR_COUNT, server, client);
+    //请求数据块
+    DataRequest(server, client);
+    //计算传输速率
+    StreamCalculate(0, 1, client);
+    int a = 1;
     //long long time = 0;
     // while (1)
     // {

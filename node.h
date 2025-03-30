@@ -4,6 +4,8 @@
 using namespace std;
 
 #define ll long long
+//定义数据块的存储上限
+#define DATA_LIMIT 50
 // 邻接表节点
 
 class Node;
@@ -64,14 +66,15 @@ public:
     DataNode* next_cache_head;
     DataNode* next_cache_comptr; // 指向最后一个顺序的节点
     DataNode* next_cache_tail;
-    int N; // 缓存大小
-    int M; // 播放条件
-    // 在客户端上维护一个长度为N的缓存队列,新到达的数据分块会将最老的数据块进行覆盖。看不懂，像栈一样？
+    int data_count; // 缓存大小
+    int stream_speed = 0;//播放流畅度
+    int stream_pos = 0;//播放到的数据块id
     // 上面的内容就可以实现 只需要把旧的节点从中移除并释放就行
     Client();
     Client(int id,ll x,ll y);
     void ClientDataUpdate();
     void AddData(int data_id);
+    void StreamData();
 };
 // data N数据块
 // 数据节点
@@ -80,6 +83,7 @@ class DataNode // 采用链表存储数据块
 public:
     int data_id; // 数据块序号
     // 数据块放这里？
+    int stream_delay = 0;
     struct DataNode *next;
     struct DataNode *pre;
     DataNode(int id);
