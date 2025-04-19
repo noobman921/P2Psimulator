@@ -177,7 +177,7 @@ void CreateNeibor(int n, int neighbor_count, Server &server, Client client[])
     {
         for (int j = 1; j <= neighbor_count; j++)
         {
-            cout << client[i].neibor_count << endl;
+            cout << "oioi"<<client[i].neibor_count << endl;
             if (client[i].neibor_count == NEIGHBOR_COUNT)
                 break; // 客户端邻居数量已满 弹出循环
             // 选取随机一个id

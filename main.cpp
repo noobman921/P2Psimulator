@@ -2,7 +2,9 @@
 #include <queue>
 #include "node.h"
 #include "simulator.h"
-
+#include <thread>
+#include <chrono>
+#include <cstdio>
 // #include <stdio.h>
 // #include <time.h>
 // #include <unistd.h>
@@ -32,8 +34,24 @@ int main()
     // while (1)
     // {
         
-    //     perFrame(time);
+         //perFrame(time);
 
     // }
+    FILE* pipe = _popen("python D:\\Users\\P2P\\P2P1\\P2Psimulator\\UI.py", "w");
+    if (!pipe) {
+        fprintf(stderr, "管道打开失败\n");
+        return 1;
+    }
+    fprintf(pipe, "POINTS ");
+    fprintf(pipe, "%lld %lld ", server.x, server.y);
+    for (const auto& p : client) {
+        fprintf(pipe, "%lld %lld ", p.x, p.y);
+    }
+    fprintf(pipe, "\n");
+
+    fprintf(pipe, "END\n");
+    fflush(pipe);
+    std::this_thread::sleep_for(std::chrono::seconds(1));  // 确保Python处理完成
+    _pclose(pipe);
     return 0;
 }
