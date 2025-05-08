@@ -36,7 +36,7 @@ int main()
     // perFrame(time);
 
     // }
-    FILE *pipe = _popen("python D:\\Users\\P2P\\P2P1\\P2Psimulator\\UI.py", "w");
+    FILE *pipe = _popen("python UI.py", "w");
     if (!pipe)
     {
         fprintf(stderr, "管道打开失败\n");
@@ -73,5 +73,6 @@ int main()
     fflush(pipe);
     std::this_thread::sleep_for(std::chrono::seconds(1)); // 确保Python处理完成
     _pclose(pipe);
+    //system("pause");
     return 0;
 }
